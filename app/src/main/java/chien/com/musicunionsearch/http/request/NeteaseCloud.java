@@ -3,6 +3,7 @@ package chien.com.musicunionsearch.http.request;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.Locale;
 import java.util.Random;
@@ -24,8 +25,8 @@ public class NeteaseCloud {
     }
 
     public Request searchSong(String query, int page, int pageSize) {
-        SearchSong searchSong = new SearchSong(query, 1);
-        searchSong.offset = page;
+        SearchSong searchSong = new SearchSong(query, "1");
+        searchSong.offset = (page - 1) * pageSize;
         searchSong.limit = pageSize;
         String params = encrypt("/api/cloudsearch/pc", searchSong).toUpperCase();
         return getBaseRequest("https://music.163.com/eapi/cloudsearch/pc", params).build();
@@ -50,7 +51,7 @@ public class NeteaseCloud {
     }
 
     private String encrypt(String path, Object obj) {
-        String params = new Gson().toJson(obj);
+        String params = new GsonBuilder().disableHtmlEscaping().create().toJson(obj);
         String sign = MD5.hash("nobody" + path + "use" + params + "md5forencrypt").toUpperCase();
         String src = path + "-36cd479b6b5-" + params + "-36cd479b6b5-" + sign;
         return aes.encrypt(src);
@@ -63,9 +64,10 @@ public class NeteaseCloud {
         String hlposttag = "</span>";
         String hlpretag = "<span class=\"s-fc2\">";
         String total = "true";
-        int type = 1;
+        String type;
 
-        SearchSong(String query, int type) {
+        SearchSong(String query, String type) {
+            super();
             this.s = query;
             this.type = type;
         }
@@ -76,6 +78,7 @@ public class NeteaseCloud {
         int br = 320000;
 
         PlayerUrl(@NonNull int[] ids) {
+            super();
             if (ids.length == 0) {
                 this.ids = "[]";
             } else {
@@ -92,10 +95,12 @@ public class NeteaseCloud {
     private static class BaseNeteaseRequest {
         int verifyId = 1;
         String os = "OSX";
-        Header header = new Header();
+        String header;
 
         BaseNeteaseRequest() {
+            Header header = new Header();
             header.requestId = String.format(Locale.getDefault(), "%8d", new Random().nextInt(99999999));
+            this.header = new Gson().toJson(header);
         }
 
         private static class Header {

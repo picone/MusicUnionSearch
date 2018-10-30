@@ -17,4 +17,8 @@
 
     <string name="dialog_title_wait">请稍候</string>
     <string name="dialog_message_search">正在搜索…</string>
+
+    <string name="preference_general_title">通用设置</string>
+    <string name="preference_general_download_path_title">下载路径</string>
+    <string name="preference_general_download_path_summary">默认下载到音乐文件夹</string>
 </resources>

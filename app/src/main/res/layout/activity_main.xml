@@ -14,14 +14,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/activity_main_type_netease_cloud"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:checked="true"/>
         <RadioButton
             android:id="@+id/search_type_kugou"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/activity_main_type_kugou"
-            android:layout_weight="1"
-            android:checked="true"/>
+            android:layout_weight="1"/>
         <RadioButton
             android:id="@+id/search_type_qq"
             android:layout_width="wrap_content"

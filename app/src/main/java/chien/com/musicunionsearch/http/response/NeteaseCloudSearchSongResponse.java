@@ -25,6 +25,7 @@ public class NeteaseCloudSearchSongResponse {
 
             public static class Privilege {
                 public int st;
+                public int subp;
             }
         }
     }

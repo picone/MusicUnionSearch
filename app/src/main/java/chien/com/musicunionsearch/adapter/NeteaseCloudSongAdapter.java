@@ -29,9 +29,11 @@ public class NeteaseCloudSongAdapter extends RecyclerView.Adapter {
         this.activity = activity;
         // 过滤没有版权的歌曲
         List<NeteaseCloudSearchSongResponse.Result.SongItem> newList = new ArrayList<>();
-        for (NeteaseCloudSearchSongResponse.Result.SongItem song : searchResult.result.songs) {
-            if (song.privilege.st >= 0) {
-                newList.add(song);
+        if (searchResult.result.songs != null) {
+            for (NeteaseCloudSearchSongResponse.Result.SongItem song : searchResult.result.songs) {
+                if (song.privilege.st >= 0 && song.privilege.subp != 0) {
+                    newList.add(song);
+                }
             }
         }
         this.searchResult.result.songs = newList;

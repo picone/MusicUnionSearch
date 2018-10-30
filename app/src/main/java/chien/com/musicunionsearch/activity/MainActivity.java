@@ -3,11 +3,13 @@ package chien.com.musicunionsearch.activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -30,7 +32,6 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -125,6 +126,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         sv.setQueryHint(getString(R.string.activity_main_search_hint));
         sv.setOnQueryTextListener(this);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.setting) {
+            startActivity(new Intent(this, SettingActivity_.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -275,8 +285,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         if (downloadUrl == null || TextUtils.isEmpty(downloadUrl)) {
             return;
         }
+        String downloadPath = PreferenceManager.getDefaultSharedPreferences(this).getString("download_path", "");
+        if (TextUtils.isEmpty(downloadPath)) {
+            downloadPath = Environment.DIRECTORY_MUSIC;
+        }
         DownloadManager.Request req = new DownloadManager.Request(Uri.parse(downloadUrl));
-        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFilename);
+        req.setDestinationInExternalPublicDir(downloadPath, downloadFilename);
         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         req.allowScanningByMediaScanner();
         DownloadManager downloadManager = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);

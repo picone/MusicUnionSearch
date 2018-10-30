@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'mtj-circle-plugin'
 
 android {
     compileSdkVersion 27
@@ -11,9 +12,18 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    MtjCirclePluginConfig {
+        appkey = '78fe5138b2'
+        debug = false
+        enabled = true
+    }
+    lintOptions {
+        disable 'GoogleAppIndexingWarning'
+        baseline file("lint-baseline.xml")
     }
 }
 
