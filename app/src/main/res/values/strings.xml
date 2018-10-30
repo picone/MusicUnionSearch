@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">音乐搜索</string>
+
+    <string name="activity_main_search_hint">请输入歌曲名字</string>
+    <string name="activity_main_player_cover">专辑封面</string>
+    <string name="activity_main_player_button">播放/停止按钮</string>
+    <string name="activity_main_download_button">下载按钮</string>
+    <string name="activity_main_type_netease_cloud">网易云</string>
+    <string name="activity_main_type_kugou">酷狗</string>
+    <string name="activity_main_type_qq">QQ音乐</string>
+
+    <string name="menu_search">搜索</string>
+
+    <string name="toast_network_error">网络错误</string>
+    <string name="toast_player_url_error">播放地址错误</string>
+</resources>
