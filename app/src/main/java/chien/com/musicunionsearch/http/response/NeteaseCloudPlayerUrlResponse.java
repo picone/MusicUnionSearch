@@ -8,5 +8,6 @@ public class NeteaseCloudPlayerUrlResponse {
 
     public static class DataItem {
         public String url;
+        public String type;
     }
 }

@@ -10,6 +10,7 @@
     <string name="activity_main_type_qq">QQ音乐</string>
 
     <string name="menu_search">搜索</string>
+    <string name="menu_setting">设置</string>
 
     <string name="toast_network_error">网络错误</string>
     <string name="toast_player_url_error">播放地址错误</string>

@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Locale;
+
 import chien.com.musicunionsearch.activity.MainActivity;
 import chien.com.musicunionsearch.holder.SongViewHolder;
 import chien.com.musicunionsearch.http.handler.SimpleCallbackHandler;
@@ -61,7 +63,8 @@ public class QQMusicSongAdapter extends RecyclerView.Adapter {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((MainActivity)activity).playMusic(url, song.name, song.singer.get(0).name, QQMusic.getAlbumUrl(song.album.mid));
+                        String filename = String.format(Locale.getDefault(), "%s - %s.m4a", song.name, song.singer.get(0).name);
+                        ((MainActivity)activity).playMusic(url, song.name, song.singer.get(0).name, QQMusic.getAlbumUrl(song.album.mid), filename);
                     }
                 });
             }

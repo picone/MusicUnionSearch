@@ -1,9 +1,13 @@
 package chien.com.musicunionsearch.activity;
 
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -11,6 +15,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -25,6 +30,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private ProgressDialog searchProgressDialog;
     private boolean seekBarChanging = false;
     private Timer timer;
+    private String downloadUrl = null;
+    private String downloadFilename = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
      * @param singer 歌手名字
      * @param album 专辑封面
      */
-    public void playMusic(String url, String name, String singer, String album) {
+    public void playMusic(String url, String name, String singer, String album, String filename) {
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(url);
@@ -210,6 +218,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     playButton.setImageResource(R.drawable.stop);
                 }
             });
+            downloadUrl = url;
+            downloadFilename = filename;
         } catch (IOException|NullPointerException e) {
             Toast.makeText(this, R.string.toast_player_url_error, Toast.LENGTH_SHORT).show();
         }
@@ -262,7 +272,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Click(R.id.download_button)
     public void onDownloadButtonClick() {
-
+        if (downloadUrl == null || TextUtils.isEmpty(downloadUrl)) {
+            return;
+        }
+        DownloadManager.Request req = new DownloadManager.Request(Uri.parse(downloadUrl));
+        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFilename);
+        req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        req.allowScanningByMediaScanner();
+        DownloadManager downloadManager = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
+        if (downloadManager != null) {
+            downloadManager.enqueue(req);
+        }
     }
 
     @Override

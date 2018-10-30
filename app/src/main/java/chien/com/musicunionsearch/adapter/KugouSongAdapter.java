@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Locale;
+
 import chien.com.musicunionsearch.activity.MainActivity;
 import chien.com.musicunionsearch.holder.SongViewHolder;
 import chien.com.musicunionsearch.http.handler.SimpleCallbackHandler;
@@ -58,7 +60,8 @@ public class KugouSongAdapter extends RecyclerView.Adapter {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((MainActivity)activity).playMusic(response.data.play_url, song.songname, song.singername, response.data.img);
+                        String filename = String.format(Locale.getDefault(), "%s - %s.mp3", song.singername, song.songname);
+                        ((MainActivity)activity).playMusic(response.data.play_url, song.songname, song.singername, response.data.img, filename);
                     }
                 });
             }

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import chien.com.musicunionsearch.activity.MainActivity;
 import chien.com.musicunionsearch.holder.SongViewHolder;
@@ -65,12 +66,13 @@ public class NeteaseCloudSongAdapter extends RecyclerView.Adapter {
         Request req = new NeteaseCloud().playerUrl(song.id);
         ((MainActivity)activity).httpClient.newCall(req).enqueue(new SimpleCallbackHandler<NeteaseCloudPlayerUrlResponse>(activity) {
             @Override
-            public void onResult(Call call, NeteaseCloudPlayerUrlResponse response) {
-                final String url = response.data.get(0).url;
+            public void onResult(Call call, final NeteaseCloudPlayerUrlResponse response) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((MainActivity)activity).playMusic(url, song.name, song.ar.get(0).name, song.al.picUrl);
+                        String url = response.data.get(0).url;
+                        String filename = String.format(Locale.getDefault(), "%s - %s.%s", song.name, song.ar.get(0).name, response.data.get(0).type);
+                        ((MainActivity)activity).playMusic(url, song.name, song.ar.get(0).name, song.al.picUrl, filename);
                     }
                 });
             }
