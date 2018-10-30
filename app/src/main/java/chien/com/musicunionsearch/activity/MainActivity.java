@@ -29,6 +29,7 @@ import java.util.TimerTask;
 
 import chien.com.musicunionsearch.R;
 import chien.com.musicunionsearch.adapter.KugouSongAdapter;
+import chien.com.musicunionsearch.adapter.NeteaseCloudSongAdapter;
 import chien.com.musicunionsearch.adapter.QQMusicSongAdapter;
 import chien.com.musicunionsearch.http.handler.ImageViewCallbackHandler;
 import chien.com.musicunionsearch.http.handler.SimpleCallbackHandler;
@@ -36,6 +37,7 @@ import chien.com.musicunionsearch.http.request.Kugou;
 import chien.com.musicunionsearch.http.request.NeteaseCloud;
 import chien.com.musicunionsearch.http.request.QQMusic;
 import chien.com.musicunionsearch.http.response.KugouSearchSongResponse;
+import chien.com.musicunionsearch.http.response.NeteaseCloudSearchSongResponse;
 import chien.com.musicunionsearch.http.response.QQMusicSearchSongResponse;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -134,8 +136,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     protected boolean searchNeteaseCloud(String query) {
-        Request req = NeteaseCloud.searchSong(query, 1, 100);
-
+        Request req = new NeteaseCloud().searchSong(query, 1, 100);
+        httpClient.newCall(req).enqueue(new SimpleCallbackHandler<NeteaseCloudSearchSongResponse>(MainActivity.this) {
+            @Override
+            public void onResult(Call call, final NeteaseCloudSearchSongResponse response) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchResult.setAdapter(new NeteaseCloudSongAdapter(response, MainActivity.this));
+                    }
+                });
+            }
+        });
         return true;
     }
 
@@ -192,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     playButton.setImageResource(R.drawable.stop);
                 }
             });
-        } catch (IOException e) {
+        } catch (IOException|NullPointerException e) {
             Toast.makeText(this, R.string.toast_player_url_error, Toast.LENGTH_SHORT).show();
         }
         songName.setText(name);

@@ -18,15 +18,21 @@ public class AES {
     }
 
     public String encrypt(String src) {
-
+        StringBuilder ret = new StringBuilder();
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] buffer = cipher.doFinal(src.getBytes());
-
+            for(byte b: buffer) {
+                String s = Integer.toHexString(b & 0xFF);
+                if (s.length() == 1) {
+                    ret.append("0");
+                }
+                ret.append(s);
+            }
         } catch (NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException
                 | InvalidKeyException | NoSuchAlgorithmException ignored) {
         }
-        return null;
+        return ret.toString();
     }
 }
