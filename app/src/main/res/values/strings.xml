@@ -13,4 +13,7 @@
 
     <string name="toast_network_error">网络错误</string>
     <string name="toast_player_url_error">播放地址错误</string>
+
+    <string name="dialog_title_wait">请稍候</string>
+    <string name="dialog_message_search">正在搜索…</string>
 </resources>

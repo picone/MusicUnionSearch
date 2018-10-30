@@ -1,5 +1,6 @@
 package chien.com.musicunionsearch.activity;
 
+import android.app.ProgressDialog;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -62,7 +63,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected AppCompatSeekBar seekBar;
 
     public OkHttpClient httpClient;
-    protected MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
+    private ProgressDialog searchProgressDialog;
     private boolean seekBarChanging = false;
     private Timer timer;
 
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
      */
     @Override
     public boolean onQueryTextSubmit(String query) {
+        searchProgressDialog = ProgressDialog.show(this, getString(R.string.dialog_title_wait), getString(R.string.dialog_message_search), true, false);
         switch (searchType.getCheckedRadioButtonId()) {
             case R.id.search_type_netease_cloud:
                 return searchNeteaseCloud(query);
@@ -144,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         searchResult.setAdapter(new NeteaseCloudSongAdapter(response, MainActivity.this));
+                        searchProgressDialog.cancel();
                     }
                 });
             }
@@ -160,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         searchResult.setAdapter(new KugouSongAdapter(response, MainActivity.this));
+                        searchProgressDialog.cancel();
                     }
                 });
             }
@@ -176,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         searchResult.setAdapter(new QQMusicSongAdapter(response, MainActivity.this));
+                        searchProgressDialog.cancel();
                     }
                 });
             }
@@ -239,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             mediaPlayer.release();
             mediaPlayer = null;
         }
+        searchProgressDialog.cancel();
         super.onDestroy();
     }
 
