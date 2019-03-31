@@ -53,13 +53,14 @@ public class QQMusicSongAdapter extends RecyclerView.Adapter {
     }
 
     private void playMusic(final QQMusicSearchSongResponse.Data.Song.SongItem song) {
-        final String guid = QQMusic.getGuid();
-        Request req = QQMusic.playSong(song.mid, guid);
+        Request req = QQMusic.playSong(song.mid);
         ((MainActivity)activity).httpClient.newCall(req).enqueue(new SimpleCallbackHandler<QQMusicPlaySongResponse>(activity) {
             @Override
             public void onResult(Call call, QQMusicPlaySongResponse response) {
-                QQMusicPlaySongResponse.Data.Item item = response.data.items.get(0);
-                final String url = QQMusic.getPlayerUrl(item.filename, item.vkey, guid);
+                if (response.code != 0 || response.req_0.data.sip.size() == 0 || response.req_0.data.midurlinfo.size() == 0) {
+                    return;
+                }
+                final String url = response.req_0.data.sip.get(0) + response.req_0.data.midurlinfo.get(0).purl;
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

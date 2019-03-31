@@ -4,15 +4,21 @@ import java.util.List;
 
 public class QQMusicPlaySongResponse {
 
-    public Data data;
+    public int code;
 
-    public static class Data {
+    public Req req_0;
 
-        public List<Item> items;
+    public static class Req {
 
-        public static class Item {
-            public String filename;
-            public String vkey;
+        public Data data;
+
+        public static class Data {
+            public List<MidUrlInfo> midurlinfo;
+            public List<String> sip;
+
+            public static class MidUrlInfo {
+                public String purl;
+            }
         }
     }
 }

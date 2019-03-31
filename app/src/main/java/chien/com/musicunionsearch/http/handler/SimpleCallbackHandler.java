@@ -1,9 +1,11 @@
 package chien.com.musicunionsearch.http.handler;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -22,6 +24,10 @@ public abstract class SimpleCallbackHandler<ResultType> implements Callback {
 
     @Override
     public void onFailure(Call call, IOException e) {
+        showFailToast();
+    }
+
+    private void showFailToast() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -50,8 +56,15 @@ public abstract class SimpleCallbackHandler<ResultType> implements Callback {
     public void onResponse(Call call, Response response) throws IOException {
         ResponseBody responseBody = response.body();
         if (responseBody != null) {
+            String responseString = responseBody.string();
             Gson gson = new Gson();
-            onResult(call, gson.fromJson(responseBody.string(), clazz));
+            try {
+                ResultType resp = gson.fromJson(responseString, clazz);
+                onResult(call, resp);
+            } catch (JsonSyntaxException e) {
+                Log.w("JSON", "json decode fail:" + responseString);
+                showFailToast();
+            }
         }
     }
 

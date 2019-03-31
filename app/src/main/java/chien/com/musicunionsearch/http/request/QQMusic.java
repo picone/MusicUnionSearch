@@ -34,29 +34,31 @@ public class QQMusic {
         return getDefaultBuilder().url(url).build();
     }
 
-    public static Request playSong(String mid, String guid) {
-        String filename = "C400" + mid + ".m4a";
+    public static Request playSong(String mid) {
+        String guid = QQMusic.getGuid();
+        String data = "{\"req_0\":{\"module\":\"vkey.GetVkeyServer\",\"method\":\"CgiGetVkey\",\"param\":{\"guid\":\"{{guid}}\",\"songmid\":[\"{{songmid}}\"],\"songtype\":[0],\"uin\":\"0\",\"loginflag\":1,\"platform\":\"20\"}},\"comm\":{\"uin\":0,\"format\":\"json\",\"ct\":24,\"cv\":0}}"
+                .replace("{{songmid}}", mid)
+                .replace("{{guid}}", guid);
         String url = new HttpUrl.Builder()
                 .scheme("https")
-                .host("c.y.qq.com")
-                .encodedPath("/base/fcgi-bin/fcg_music_express_mobile3.fcg")
+                .host("u.y.qq.com")
+                .encodedPath("/cgi-bin/musicu.fcg")
+                .addQueryParameter("loginUin", "0")
+                .addQueryParameter("hostUin", "0")
                 .addQueryParameter("format", "json")
                 .addQueryParameter("inCharset", "utf-8")
                 .addQueryParameter("outCharset", "utf-8")
-                .addQueryParameter("platform", "yqq")
-                .addQueryParameter("cid", "205361747")
-                .addQueryParameter("uin", "0")
+                .addQueryParameter("notice", "0")
+                .addQueryParameter("platform", "yqq.json")
                 .addQueryParameter("needNewCode", "0")
-                .addQueryParameter("songmid", mid)
-                .addQueryParameter("filename", filename)
-                .addQueryParameter("guid", guid)
+                .addQueryParameter("data", data)
                 .toString();
         return getDefaultBuilder().url(url).build();
     }
 
     public static String getPlayerUrl(String filename, String vkey, String guid) {
         return String.format(Locale.getDefault(), "http://isure.stream.qqmusic.qq.com/%s?vkey=%s&" +
-                "guid=%s&uin=0&fromtag=151", filename, vkey, guid);
+                "guid=%s&uin=0&fromtag=8", filename, vkey, guid);
     }
 
     public static String getAlbumUrl(String mid) {
@@ -64,13 +66,13 @@ public class QQMusic {
     }
 
     public static String getGuid() {
-        long guid = new Random().nextLong() % 9999999999L;
-        return String.format(Locale.getDefault(), "%10d", guid);
+        long guid = Math.abs(new Random().nextLong()) % 9999999999L;
+        return String.format(Locale.getDefault(), "%010d", guid);
     }
 
     private static Request.Builder getDefaultBuilder() {
         return new Request.Builder()
-                .addHeader("Referer", "http://y.qq.com")
+                .addHeader("Referer", "https://y.qq.com")
                 .get();
     }
 }

@@ -225,8 +225,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
         songName.setText(name);
         singerName.setText(singer);
-        httpClient.newCall(new Request.Builder().url(album).build())
-                .enqueue(new ImageViewCallbackHandler(MainActivity.this, player_cover));
+        if (album == null) {
+            player_cover.setImageResource(R.drawable.ic_launcher_foreground);
+        } else {
+            httpClient.newCall(new Request.Builder().url(album).build())
+                    .enqueue(new ImageViewCallbackHandler(MainActivity.this, player_cover));
+        }
     }
 
     @Override

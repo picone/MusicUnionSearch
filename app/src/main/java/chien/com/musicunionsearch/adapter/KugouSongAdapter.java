@@ -13,6 +13,7 @@ import chien.com.musicunionsearch.holder.SongViewHolder;
 import chien.com.musicunionsearch.http.handler.SimpleCallbackHandler;
 import chien.com.musicunionsearch.http.request.Kugou;
 import chien.com.musicunionsearch.http.response.KugouGetSongDataResponse;
+import chien.com.musicunionsearch.http.response.KugouPlaySongResponse;
 import chien.com.musicunionsearch.http.response.KugouSearchSongResponse;
 import okhttp3.Call;
 import okhttp3.Request;
@@ -53,15 +54,15 @@ public class KugouSongAdapter extends RecyclerView.Adapter {
     }
 
     private void playMusic(final KugouSearchSongResponse.Data.Info song) {
-        Request req = Kugou.getSongData(song.hash, song.album_id);
-        ((MainActivity)activity).httpClient.newCall(req).enqueue(new SimpleCallbackHandler<KugouGetSongDataResponse>(activity) {
+        Request req = Kugou.playSong(song.hash);
+        ((MainActivity)activity).httpClient.newCall(req).enqueue(new SimpleCallbackHandler<KugouPlaySongResponse>(activity) {
             @Override
-            public void onResult(Call call, final KugouGetSongDataResponse response) {
+            public void onResult(Call call, final KugouPlaySongResponse response) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         String filename = String.format(Locale.getDefault(), "%s - %s.mp3", song.singername, song.songname);
-                        ((MainActivity)activity).playMusic(response.data.play_url, song.songname, song.singername, response.data.img, filename);
+                        ((MainActivity)activity).playMusic(response.url, song.songname, song.singername, null, filename);
                     }
                 });
             }
