@@ -1,7 +1,6 @@
 package chien.com.musicunionsearch.activity;
 
 import android.app.DownloadManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -18,7 +17,10 @@ import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -30,7 +32,6 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,10 +68,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected ImageView playButton;
     @ViewById(R.id.player_seek_bar)
     protected AppCompatSeekBar seekBar;
+    @ViewById(R.id.progress_bar)
+    protected ProgressBar progressBar;
 
     public OkHttpClient httpClient;
     private MediaPlayer mediaPlayer;
-    private ProgressDialog searchProgressDialog;
     private boolean seekBarChanging = false;
     private Timer timer;
     private String downloadUrl = null;
@@ -134,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
      */
     @Override
     public boolean onQueryTextSubmit(String query) {
-        searchProgressDialog = ProgressDialog.show(this, getString(R.string.dialog_title_wait), getString(R.string.dialog_message_search), true, false);
+        progressBar.setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         switch (searchType.getCheckedRadioButtonId()) {
             case R.id.search_type_netease_cloud:
                 return searchNeteaseCloud(query);
@@ -155,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         searchResult.setAdapter(new NeteaseCloudSongAdapter(response, MainActivity.this));
-                        searchProgressDialog.cancel();
+                        progressBar.setVisibility(View.GONE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     }
                 });
             }
@@ -172,7 +176,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         searchResult.setAdapter(new KugouSongAdapter(response, MainActivity.this));
-                        searchProgressDialog.cancel();
+                        progressBar.setVisibility(View.GONE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     }
                 });
             }
@@ -189,7 +194,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     @Override
                     public void run() {
                         searchResult.setAdapter(new QQMusicSongAdapter(response, MainActivity.this));
-                        searchProgressDialog.cancel();
+                        progressBar.setVisibility(View.GONE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     }
                 });
             }
@@ -259,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             mediaPlayer.release();
             mediaPlayer = null;
         }
-        searchProgressDialog.cancel();
         super.onDestroy();
     }
 

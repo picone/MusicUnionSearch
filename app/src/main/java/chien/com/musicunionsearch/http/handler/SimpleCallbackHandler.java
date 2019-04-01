@@ -36,6 +36,7 @@ public abstract class SimpleCallbackHandler<ResultType> implements Callback {
         });
     }
 
+    @SuppressWarnings("unchecked")
     protected SimpleCallbackHandler(Activity activity) {
         this.activity = activity;
         Class clazz = getClass();

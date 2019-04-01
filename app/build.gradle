@@ -7,13 +7,26 @@ android {
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
+    }
+    signingConfigs {
+        release {
+            storeFile file("../android.keystore")
+            storePassword project.hasProperty("STORE_PASSWORD") ? STORE_PASSWORD : System.getenv("STORE_PASSWORD")
+            keyAlias project.hasProperty("STORE_ALIAS_NAME") ? STORE_ALIAS_NAME : System.getenv("STORE_ALIAS_NAME")
+            keyPassword project.hasProperty("STORE_KEY_PASSWORD") ? STORE_KEY_PASSWORD : System.getenv("STORE_KEY_PASSWORD")
+        }
     }
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
