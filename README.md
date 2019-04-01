@@ -1,6 +1,8 @@
 # Music Union Search
 音乐全网搜索
 
+[![Build Status](https://travis-ci.org/picone/MusicUnionSearch.png?branch=master)](https://travis-ci.org/picone/MusicUnionSearch)
+
 ## Feature
 
 - 支持网易云、酷狗、QQ音乐的结果搜索
