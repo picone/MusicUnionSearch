@@ -56,16 +56,11 @@ public class QQMusic {
         return getDefaultBuilder().url(url).build();
     }
 
-    public static String getPlayerUrl(String filename, String vkey, String guid) {
-        return String.format(Locale.getDefault(), "http://isure.stream.qqmusic.qq.com/%s?vkey=%s&" +
-                "guid=%s&uin=0&fromtag=8", filename, vkey, guid);
-    }
-
     public static String getAlbumUrl(String mid) {
         return "https://y.gtimg.cn/music/photo_new/T002R300x300M000" + mid + ".jpg";
     }
 
-    public static String getGuid() {
+    private static String getGuid() {
         long guid = Math.abs(new Random().nextLong()) % 9999999999L;
         return String.format(Locale.getDefault(), "%010d", guid);
     }

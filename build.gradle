@@ -3,22 +3,21 @@
 buildscript {
     
     repositories {
-        google()
         mavenCentral()
+        google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.4'
     }
 }
 
 allprojects {
     repositories {
-        google()
         mavenCentral()
+        google()
+        jcenter()
         mavenLocal()
     }
 }

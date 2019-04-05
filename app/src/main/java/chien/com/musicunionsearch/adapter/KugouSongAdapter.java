@@ -12,7 +12,6 @@ import chien.com.musicunionsearch.activity.MainActivity;
 import chien.com.musicunionsearch.holder.SongViewHolder;
 import chien.com.musicunionsearch.http.handler.SimpleCallbackHandler;
 import chien.com.musicunionsearch.http.request.Kugou;
-import chien.com.musicunionsearch.http.response.KugouGetSongDataResponse;
 import chien.com.musicunionsearch.http.response.KugouPlaySongResponse;
 import chien.com.musicunionsearch.http.response.KugouSearchSongResponse;
 import okhttp3.Call;

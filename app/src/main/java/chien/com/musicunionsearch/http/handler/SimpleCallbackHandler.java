@@ -40,7 +40,7 @@ public abstract class SimpleCallbackHandler<ResultType> implements Callback {
     protected SimpleCallbackHandler(Activity activity) {
         this.activity = activity;
         Class clazz = getClass();
-        while (clazz != Object.class) {
+        while (clazz != Object.class && clazz != null) {
             Type t = clazz.getGenericSuperclass();
             if (t instanceof ParameterizedType) {
                 Type[] args = ((ParameterizedType) t).getActualTypeArguments();

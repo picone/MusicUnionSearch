@@ -27,7 +27,7 @@ public class NeteaseCloud {
         SearchSong searchSong = new SearchSong(query, 1);
         searchSong.offset = page;
         searchSong.limit = pageSize;
-        String params = encrypt("/api/cloudsearch/pc", searchSong).toUpperCase();
+        String params = encrypt("/api/cloudsearch/pc", searchSong).toUpperCase(Locale.CHINESE);
         return getBaseRequest("https://music.163.com/eapi/cloudsearch/pc", params).build();
     }
 
@@ -51,7 +51,7 @@ public class NeteaseCloud {
 
     private String encrypt(String path, Object obj) {
         String params = new Gson().toJson(obj);
-        String sign = MD5.hash("nobody" + path + "use" + params + "md5forencrypt").toUpperCase();
+        String sign = MD5.hash("nobody" + path + "use" + params + "md5forencrypt").toUpperCase(Locale.CHINESE);
         String src = path + "-36cd479b6b5-" + params + "-36cd479b6b5-" + sign;
         return aes.encrypt(src);
     }

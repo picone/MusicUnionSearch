@@ -28,18 +28,6 @@ public class Kugou {
         return getDefaultBuilder().url(url).build();
     }
 
-    public static Request getSongData(String hash, String album_id) {
-        String url = new HttpUrl.Builder()
-                .scheme("http")
-                .host("wwwapi.kugou.com")
-                .encodedPath("/yy/index.php")
-                .addQueryParameter("r", "play/getdata")
-                .addQueryParameter("hash", hash.toUpperCase())
-                .addQueryParameter("album_id", album_id)
-                .toString();
-        return getDefaultBuilder().url(url).build();
-    }
-
     public static Request playSong(String hash) {
         String url = new HttpUrl.Builder()
                 .scheme("http")
