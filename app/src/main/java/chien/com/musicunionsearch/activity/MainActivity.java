@@ -30,6 +30,7 @@ import android.widget.Toast;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.IOException;
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         seekBarTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (seekBar.getMax() > 0 && !seekBarChanging) {
+                if (seekBar.getMax() > 0 && !seekBarChanging && mediaPlayer != null) {
                     seekBar.setProgress(mediaPlayer.getCurrentPosition());
                 }
             }
@@ -159,14 +160,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         httpClient.newCall(req).enqueue(new SimpleCallbackHandler<NeteaseCloudSearchSongResponse>(MainActivity.this) {
             @Override
             public void onResult(Call call, final NeteaseCloudSearchSongResponse response) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchResult.setAdapter(new NeteaseCloudSongAdapter(response, MainActivity.this));
-                        progressBar.setVisibility(View.GONE);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    }
-                });
+                displaySearchResponse(new NeteaseCloudSongAdapter(response, MainActivity.this));
             }
         });
         return true;
@@ -177,14 +171,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         httpClient.newCall(req).enqueue(new SimpleCallbackHandler<KugouSearchSongResponse>(MainActivity.this) {
             @Override
             public void onResult(Call call, final KugouSearchSongResponse response) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchResult.setAdapter(new KugouSongAdapter(response, MainActivity.this));
-                        progressBar.setVisibility(View.GONE);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    }
-                });
+                displaySearchResponse(new KugouSongAdapter(response, MainActivity.this));
             }
         });
         return true;
@@ -195,17 +182,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         httpClient.newCall(req).enqueue(new SimpleCallbackHandler<QQMusicSearchSongResponse>(MainActivity.this) {
             @Override
             public void onResult(Call call, final QQMusicSearchSongResponse response) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchResult.setAdapter(new QQMusicSongAdapter(response, MainActivity.this));
-                        progressBar.setVisibility(View.GONE);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    }
-                });
+                displaySearchResponse(new QQMusicSongAdapter(response, MainActivity.this));
             }
         });
         return true;
+    }
+
+    @UiThread
+    protected void displaySearchResponse(RecyclerView.Adapter adapter) {
+        searchResult.setAdapter(adapter);
+        progressBar.setVisibility(View.GONE);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     /**
@@ -233,8 +220,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         songName.setText(songItem.name);
         singerName.setText(songItem.artist);
         if (songItem.albumImage == null) {
-            player_cover.setImageResource(R.drawable.ic_launcher_foreground);
+            player_cover.setVisibility(View.GONE);
         } else {
+            player_cover.setVisibility(View.VISIBLE);
             httpClient.newCall(new Request.Builder().url(songItem.albumImage).build())
                     .enqueue(new ImageViewCallbackHandler(MainActivity.this, player_cover));
         }
