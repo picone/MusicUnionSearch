@@ -16,6 +16,7 @@ public class NeteaseCloudSearchSongResponse {
             public Privilege privilege;
 
             public static class Album {
+                public String name;
                 public String picUrl;
             }
 

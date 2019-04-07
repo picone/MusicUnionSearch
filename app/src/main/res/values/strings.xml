@@ -14,4 +14,5 @@
 
     <string name="toast_network_error">网络错误</string>
     <string name="toast_player_url_error">播放地址错误</string>
+    <string name="toast_download_finish">下载完成啦</string>
 </resources>

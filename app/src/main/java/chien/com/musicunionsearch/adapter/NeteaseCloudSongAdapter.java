@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import chien.com.musicunionsearch.activity.MainActivity;
 import chien.com.musicunionsearch.holder.SongViewHolder;
@@ -16,6 +15,7 @@ import chien.com.musicunionsearch.http.handler.SimpleCallbackHandler;
 import chien.com.musicunionsearch.http.request.NeteaseCloud;
 import chien.com.musicunionsearch.http.response.NeteaseCloudPlayerUrlResponse;
 import chien.com.musicunionsearch.http.response.NeteaseCloudSearchSongResponse;
+import chien.com.musicunionsearch.models.SongItem;
 import okhttp3.Call;
 import okhttp3.Request;
 
@@ -64,15 +64,21 @@ public class NeteaseCloudSongAdapter extends RecyclerView.Adapter {
 
     private void playMusic(final NeteaseCloudSearchSongResponse.Result.SongItem song) {
         Request req = new NeteaseCloud().playerUrl(song.id);
+        final SongItem songItem = new SongItem();
+        songItem.name = song.name;
+        songItem.albumImage = song.al.picUrl;
+        songItem.artist = song.ar.get(0).name;
+        songItem.extensionName = "mp3";
+        songItem.album = song.al.name;
         ((MainActivity)activity).httpClient.newCall(req).enqueue(new SimpleCallbackHandler<NeteaseCloudPlayerUrlResponse>(activity) {
             @Override
-            public void onResult(Call call, final NeteaseCloudPlayerUrlResponse response) {
+            public void onResult(Call call, NeteaseCloudPlayerUrlResponse response) {
+                songItem.downloadUrl = response.data.get(0).url;
+                songItem.extensionName = response.data.get(0).type;
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String url = response.data.get(0).url;
-                        String filename = String.format(Locale.getDefault(), "%s - %s.%s", song.name, song.ar.get(0).name, response.data.get(0).type);
-                        ((MainActivity)activity).playMusic(url, song.name, song.ar.get(0).name, song.al.picUrl, filename);
+                        ((MainActivity)activity).playMusic(songItem);
                     }
                 });
             }

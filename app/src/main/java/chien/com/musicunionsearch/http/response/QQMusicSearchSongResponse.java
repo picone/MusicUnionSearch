@@ -20,6 +20,7 @@ public class QQMusicSearchSongResponse {
 
                 public static class Album {
                     public String mid;
+                    public String name;
                 }
 
                 public static class Singer {

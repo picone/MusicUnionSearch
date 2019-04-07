@@ -2,6 +2,7 @@ package chien.com.musicunionsearch.activity;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -47,6 +48,8 @@ import chien.com.musicunionsearch.http.request.QQMusic;
 import chien.com.musicunionsearch.http.response.KugouSearchSongResponse;
 import chien.com.musicunionsearch.http.response.NeteaseCloudSearchSongResponse;
 import chien.com.musicunionsearch.http.response.QQMusicSearchSongResponse;
+import chien.com.musicunionsearch.models.SongItem;
+import chien.com.musicunionsearch.receiver.DownloadReceiver;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -74,9 +77,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public OkHttpClient httpClient;
     private MediaPlayer mediaPlayer;
     private boolean seekBarChanging = false;
-    private Timer timer;
-    private String downloadUrl = null;
-    private String downloadFilename = null;
+    private Timer seekBarTimer;
+    private SongItem currentPlaySongItem = null;
+    private DownloadReceiver downloadReceiver = new DownloadReceiver();
+    private String downloadPath = Environment.DIRECTORY_DOWNLOADS;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,7 +88,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         httpClient = new OkHttpClient.Builder().build();
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setLooping(true);
-        timer = new Timer();
+        seekBarTimer = new Timer();
+        registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     @AfterViews
@@ -109,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 seekBarChanging = false;
             }
         });
-        timer.schedule(new TimerTask() {
+        seekBarTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 if (seekBar.getMax() > 0 && !seekBarChanging) {
@@ -205,15 +210,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     /**
      * 播放音乐
-     * @param url 音乐地址
-     * @param name 歌曲名字
-     * @param singer 歌手名字
-     * @param album 专辑封面
+     * @param songItem 播放的歌曲
      */
-    public void playMusic(String url, String name, String singer, String album, String filename) {
+    public void playMusic(SongItem songItem) {
         try {
             mediaPlayer.reset();
-            mediaPlayer.setDataSource(url);
+            mediaPlayer.setDataSource(songItem.downloadUrl);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.prepareAsync();
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -224,17 +226,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     playButton.setImageResource(R.drawable.stop);
                 }
             });
-            downloadUrl = url;
-            downloadFilename = filename;
         } catch (IOException|NullPointerException e) {
             Toast.makeText(this, R.string.toast_player_url_error, Toast.LENGTH_SHORT).show();
         }
-        songName.setText(name);
-        singerName.setText(singer);
-        if (album == null) {
+        currentPlaySongItem = songItem;
+        songName.setText(songItem.name);
+        singerName.setText(songItem.artist);
+        if (songItem.albumImage == null) {
             player_cover.setImageResource(R.drawable.ic_launcher_foreground);
         } else {
-            httpClient.newCall(new Request.Builder().url(album).build())
+            httpClient.newCall(new Request.Builder().url(songItem.albumImage).build())
                     .enqueue(new ImageViewCallbackHandler(MainActivity.this, player_cover));
         }
     }
@@ -281,16 +282,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Click(R.id.download_button)
     public void onDownloadButtonClick() {
-        if (downloadUrl == null || TextUtils.isEmpty(downloadUrl)) {
+        if (currentPlaySongItem == null || TextUtils.isEmpty(currentPlaySongItem.downloadUrl)) {
             return;
         }
-        DownloadManager.Request req = new DownloadManager.Request(Uri.parse(downloadUrl));
-        req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFilename);
+        DownloadManager.Request req = new DownloadManager.Request(Uri.parse(currentPlaySongItem.downloadUrl));
+        req.setDestinationInExternalPublicDir(downloadPath, currentPlaySongItem.getFilename());
         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        req.setAllowedOverMetered(false);
         req.allowScanningByMediaScanner();
         DownloadManager downloadManager = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
         if (downloadManager != null) {
-            downloadManager.enqueue(req);
+            long downloadId = downloadManager.enqueue(req);
+            downloadReceiver.enqueue(downloadId, currentPlaySongItem);
         }
     }
 

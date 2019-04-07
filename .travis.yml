@@ -19,8 +19,7 @@ android:
   licenses:
     - android-sdk-license-.+
 script:
-  - ./gradlew build jacocoTestReport assembleAndroidTest
-  - ./gradlew assembleRelease
+  - ./gradlew build jacocoTestReport assembleAndroidTest assembleRelease
 deploy:
   provider: releases
   api_key:
