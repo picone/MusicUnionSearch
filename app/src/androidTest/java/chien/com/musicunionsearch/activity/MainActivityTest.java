@@ -1,8 +1,14 @@
 package chien.com.musicunionsearch.activity;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Swipe;
 import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.espresso.matcher.ViewMatchers;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -10,6 +16,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,13 +25,17 @@ import java.util.concurrent.TimeUnit;
 
 import chien.com.musicunionsearch.R;
 import chien.com.musicunionsearch.holder.SongViewHolder;
+import chien.com.musicunionsearch.provider.SeekBarCoordinatesProvider;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.actionWithAssertions;
 import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressKey;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
@@ -34,7 +45,7 @@ public class MainActivityTest {
     private static final int WAIT_PROGRESS_INTERNAL = 100;
 
     @Rule
-    public ActivityTestRule<MainActivity_> mainActivity = new ActivityTestRule<>(MainActivity_.class);
+    public IntentsTestRule<MainActivity_> mainActivity = new IntentsTestRule<>(MainActivity_.class);
 
     @Test
     public void testSearch() throws InterruptedException {
@@ -59,15 +70,38 @@ public class MainActivityTest {
             waitProgressBar();
             //播放歌曲
             onView(withId(R.id.search_result)).perform(RecyclerViewActions.<SongViewHolder>actionOnItemAtPosition(0, click()));
-            TimeUnit.SECONDS.sleep(8);
+            TimeUnit.SECONDS.sleep(5);
             TextView textView = mainActivity.getActivity().searchResult.getChildAt(0).findViewById(android.R.id.text1);
             onView(withId(R.id.song_name)).check(matches(ViewMatchers.withText(textView.getText().toString())));
             textView = mainActivity.getActivity().searchResult.getChildAt(0).findViewById(android.R.id.text2);
             onView(withId(R.id.singer_name)).check(matches(ViewMatchers.withText(textView.getText().toString())));
             Assert.assertNotEquals(mainActivity.getActivity().seekBar.getMax(), 0);
+            //仅网易云测试下载
+            if (i == 0) {
+                mainActivity.getActivity().downloadPath = "/sdcard/Download";
+                onView(withId(R.id.download_button)).perform(click());
+            }
             //停止播放
             onView(withId(R.id.player_button)).perform(click());
+            //拖动
+            int progress = mainActivity.getActivity().seekBar.getMax() / 2;
+            ViewAction swipeAction = new GeneralSwipeAction(
+                    Swipe.FAST,
+                    new SeekBarCoordinatesProvider(0),
+                    new SeekBarCoordinatesProvider(progress),
+                    Press.PINPOINT
+            );
+            onView(withId(R.id.player_seek_bar)).perform(actionWithAssertions(swipeAction));
+            //继续播放
+            onView(withId(R.id.player_button)).perform(click());
+            TimeUnit.SECONDS.sleep(1);
         }
+    }
+
+    @Test
+    public void testSetting() {
+        onView(withId(R.id.setting)).perform(click());
+        intended(hasComponent(SettingActivity.class.getName()));
     }
 
     /**
