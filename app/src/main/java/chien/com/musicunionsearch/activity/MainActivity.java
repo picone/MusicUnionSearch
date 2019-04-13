@@ -2,12 +2,14 @@ package chien.com.musicunionsearch.activity;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private Timer seekBarTimer;
     private SongItem currentPlaySongItem = null;
     private DownloadReceiver downloadReceiver = new DownloadReceiver();
-    private String downloadPath = Environment.DIRECTORY_DOWNLOADS;
+    public String downloadPath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,7 +92,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setLooping(true);
         seekBarTimer = new Timer();
+        //注册广播
         registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        //加载下载路径
+        downloadPath = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(getString(R.string.preference_download_path_key), Environment.DIRECTORY_DOWNLOADS);
+        if (downloadPath == null) {
+            downloadPath = getString(R.string.preference_download_path_default);
+        }
     }
 
     @AfterViews
@@ -133,6 +147,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         sv.setQueryHint(getString(R.string.activity_main_search_hint));
         sv.setOnQueryTextListener(this);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.setting) {
+            startActivity(new Intent(this, SettingActivity.class));
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     /**

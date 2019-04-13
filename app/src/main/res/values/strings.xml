@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">音乐搜索</string>
+    <string name="label_setting">设置</string>
 
     <string name="activity_main_search_hint">请输入歌曲名字</string>
     <string name="activity_main_player_cover">专辑封面</string>
@@ -15,4 +16,9 @@
     <string name="toast_network_error">网络错误</string>
     <string name="toast_player_url_error">播放地址错误</string>
     <string name="toast_download_finish">下载完成啦</string>
+
+    <string name="preference_title_base">基本设置</string>
+    <string name="preference_download_path_key">download_path</string>
+    <string name="preference_download_path">下载路径</string>
+    <string name="preference_download_path_default">Download</string>
 </resources>
