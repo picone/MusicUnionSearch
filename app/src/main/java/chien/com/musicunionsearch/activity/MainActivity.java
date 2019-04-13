@@ -1,16 +1,21 @@
 package chien.com.musicunionsearch.activity;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.DividerItemDecoration;
@@ -18,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +41,10 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -59,6 +68,9 @@ import okhttp3.Request;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+
+    private static final String LOG_TAG = "MainActivity";
+    private static final int REQUEST_CODE_DOWNLOAD = 1;
 
     @ViewById(R.id.search_type)
     protected RadioGroup searchType;
@@ -100,11 +112,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected void onPostResume() {
         super.onPostResume();
         //加载下载路径
+        File defaultPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         downloadPath = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(getString(R.string.preference_download_path_key), Environment.DIRECTORY_DOWNLOADS);
-        if (downloadPath == null) {
-            downloadPath = getString(R.string.preference_download_path_default);
-        }
+                .getString(getString(R.string.preference_download_path_key), defaultPath.getAbsolutePath());
     }
 
     @AfterViews
@@ -278,6 +288,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             mediaPlayer.release();
             mediaPlayer = null;
         }
+        if (downloadReceiver != null) {
+            unregisterReceiver(downloadReceiver);
+        }
         super.onDestroy();
     }
 
@@ -297,8 +310,37 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         if (currentPlaySongItem == null || TextUtils.isEmpty(currentPlaySongItem.downloadUrl)) {
             return;
         }
+        int hasPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (hasPermission == PackageManager.PERMISSION_GRANTED) {
+            downloadMusic();
+        } else {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+            boolean showRequest = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            boolean isFirstRequest = sp.getBoolean("is_first_request_download", true);
+            if (!isFirstRequest && !showRequest) {
+                Toast.makeText(this, R.string.toast_permission_write_fail, Toast.LENGTH_LONG).show();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_DOWNLOAD);
+                sp.edit().putBoolean("is_first_request_download", false).apply();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_DOWNLOAD) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                downloadMusic();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void downloadMusic() {
         DownloadManager.Request req = new DownloadManager.Request(Uri.parse(currentPlaySongItem.downloadUrl));
-        req.setDestinationInExternalPublicDir(downloadPath, currentPlaySongItem.getFilename());
+        Log.i(LOG_TAG, "download path:" + downloadPath);
+        req.setDestinationUri(Uri.fromFile(new File(new File(downloadPath), currentPlaySongItem.getFilename())));
         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         req.setAllowedOverMetered(false);
         req.allowScanningByMediaScanner();

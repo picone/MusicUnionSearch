@@ -16,9 +16,9 @@
     <string name="toast_network_error">网络错误</string>
     <string name="toast_player_url_error">播放地址错误</string>
     <string name="toast_download_finish">下载完成啦</string>
+    <string name="toast_permission_write_fail">获取写入权限失败</string>
 
     <string name="preference_title_base">基本设置</string>
     <string name="preference_download_path_key">download_path</string>
     <string name="preference_download_path">下载路径</string>
-    <string name="preference_download_path_default">Download</string>
 </resources>

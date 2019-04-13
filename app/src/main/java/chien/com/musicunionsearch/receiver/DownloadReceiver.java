@@ -49,9 +49,12 @@ public class DownloadReceiver extends BroadcastReceiver {
         if (cursor == null || !cursor.moveToFirst()) {
             return;
         }
-        String localURI = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
         try {
-            ID3 id3 = new ID3(new File(new URI(localURI)));
+            URI localURI = new URI(cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)));
+            if (!localURI.getScheme().equals("file")) {
+                return;
+            }
+            ID3 id3 = new ID3(new File(localURI));
             id3.setTag(songItem);
         } catch (InvalidDataException | IOException | UnsupportedTagException
                 | NotSupportedException | URISyntaxException e) {

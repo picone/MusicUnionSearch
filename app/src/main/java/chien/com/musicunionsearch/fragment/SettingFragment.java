@@ -29,10 +29,7 @@ public class SettingFragment extends PreferenceFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
-        String defaultDownloadPath = Environment.DIRECTORY_DOWNLOADS;
-        if (defaultDownloadPath == null) {
-            defaultDownloadPath = getString(R.string.preference_download_path_default);
-        }
+        String defaultDownloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         downloadPathPreference = findPreference(getString(R.string.preference_download_path_key));
         downloadPathPreference.setDefaultValue(defaultDownloadPath);
         downloadPathPreference.setSummary(sharedPreferences.getString(getString(R.string.preference_download_path_key), defaultDownloadPath));

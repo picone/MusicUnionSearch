@@ -2,6 +2,7 @@ package chien.com.musicunionsearch.activity;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
@@ -10,6 +11,10 @@ import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.support.test.uiautomator.UiSelector;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -43,12 +48,18 @@ public class MainActivityTest {
     private static final String TAG = "MainActivityTest";
     private static final String TEST_SONG = "AGA";
     private static final int WAIT_PROGRESS_INTERNAL = 100;
+    private UiDevice device;
 
     @Rule
     public IntentsTestRule<MainActivity_> mainActivity = new IntentsTestRule<>(MainActivity_.class);
 
+    @Before
+    public void setUp() {
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    }
+
     @Test
-    public void testSearch() throws InterruptedException {
+    public void testSearch() throws InterruptedException, UiObjectNotFoundException {
         //每种类型都点击
         for (int i = 0; i < mainActivity.getActivity().searchType.getChildCount(); i ++) {
             Log.i(TAG, "start to test index" + i);
@@ -78,8 +89,12 @@ public class MainActivityTest {
             Assert.assertNotEquals(mainActivity.getActivity().seekBar.getMax(), 0);
             //仅网易云测试下载
             if (i == 0) {
-                mainActivity.getActivity().downloadPath = "/sdcard/Download";
                 onView(withId(R.id.download_button)).perform(click());
+                //点击允许权限
+                UiObject allowPermissions = device.findObject(new UiSelector().text("ALLOW"));
+                if (allowPermissions.exists()) {
+                    allowPermissions.click();
+                }
             }
             //停止播放
             onView(withId(R.id.player_button)).perform(click());
