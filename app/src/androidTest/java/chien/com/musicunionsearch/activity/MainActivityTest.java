@@ -1,7 +1,5 @@
 package chien.com.musicunionsearch.activity;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.GeneralSwipeAction;
@@ -69,9 +67,6 @@ public class MainActivityTest {
                 onView(withId(android.support.v7.appcompat.R.id.search_src_text))
                         .perform(typeText(TEST_SONG))
                         .perform(pressKey(KeyEvent.KEYCODE_ENTER));
-            } else if (i == 2) {
-                //QQ音乐先忽略
-                continue;
             } else {
                 onView(withId(android.support.v7.appcompat.R.id.search_src_text))
                         .perform(clearText())
